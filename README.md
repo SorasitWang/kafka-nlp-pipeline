@@ -34,7 +34,7 @@ a separate ops view of consumer lag / busy-idle-down status per service.
 
 ## Setup
 
-1. Copy env file: `cp .env.example .env` (defaults work for local dev)
+1. Copy env file: `cp .env.example .env` (required: Postgres credentials have no built-in defaults)
 2. Start infra: `docker compose up -d`
 3. Install Python deps: `cd consumers-python && poetry install`
 4. Export the dataset (one-time): `poetry run python ../data/export_dataset.py`

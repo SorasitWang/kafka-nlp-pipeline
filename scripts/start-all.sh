@@ -64,7 +64,7 @@ log "topic \"$TOPIC_NAME\" ready"
 
 log "waiting for Postgres to accept connections..."
 for _ in $(seq 1 30); do
-  if docker exec postgres pg_isready -U "${POSTGRES_USER:-textanalysis}" >/dev/null 2>&1; then
+  if docker exec postgres pg_isready -U "$POSTGRES_USER" >/dev/null 2>&1; then
     break
   fi
   sleep 1

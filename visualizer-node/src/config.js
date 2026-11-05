@@ -1,13 +1,22 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import { fileURLToPath } from "node:url";
+
+dotenv.config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
+
+function required(key) {
+  const val = process.env[key];
+  if (!val) throw new Error(`${key} is not set; copy .env.example to .env`);
+  return val;
+}
 
 export const KAFKA_BROKERS = (process.env.KAFKA_BROKERS || "localhost:9092").split(",");
 export const TOPIC_NAME = process.env.TOPIC_NAME || "text-stream";
 
 export const POSTGRES_HOST = process.env.POSTGRES_HOST || "localhost";
 export const POSTGRES_PORT = Number(process.env.POSTGRES_PORT || 5432);
-export const POSTGRES_DB = process.env.POSTGRES_DB || "textanalysis";
-export const POSTGRES_USER = process.env.POSTGRES_USER || "textanalysis";
-export const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || "textanalysis";
+export const POSTGRES_DB = required("POSTGRES_DB");
+export const POSTGRES_USER = required("POSTGRES_USER");
+export const POSTGRES_PASSWORD = required("POSTGRES_PASSWORD");
 
 export const VISUALIZER_PORT = Number(process.env.VISUALIZER_PORT || 3001);
 export const POLL_INTERVAL_MS = Number(process.env.VISUALIZER_POLL_MS || 2000);

@@ -27,9 +27,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: textanalysis
-      POSTGRES_USER: textanalysis
-      POSTGRES_PASSWORD: textanalysis
+      POSTGRES_DB: ${POSTGRES_DB:?set it in .env (cp .env.example .env)}
+      POSTGRES_USER: ${POSTGRES_USER:?set it in .env (cp .env.example .env)}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set it in .env (cp .env.example .env)}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
