@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Text Analysis Dashboard</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; background: #0b0f14; color: #e6edf3; }
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.1rem; margin-top: 2rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; font-size: 0.85rem; }
+    th, td { border-bottom: 1px solid #2a333d; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+    th { color: #9fb0c0; font-weight: 600; }
+    td.text { max-width: 480px; }
+    .pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; }
+    .pos { background: #123d2a; color: #6fd89a; }
+    .neg { background: #3d1212; color: #f08c8c; }
+    .neu { background: #2a2a12; color: #e0d878; }
+    .toxic { background: #3d1212; color: #f08c8c; }
+    .clean { background: #123d2a; color: #6fd89a; }
+    .ent-per { background: #1d2f4d; color: #7fa8f0; }
+    .ent-org { background: #3d2a12; color: #e0a86f; }
+    .ent-loc { background: #123d3a; color: #6fd8c8; }
+    .ent-misc { background: #2a1d3d; color: #b98cf0; }
+    .pill small { opacity: 0.75; margin-left: 0.15rem; }
+    .bar-row { display: flex; align-items: center; gap: 0.6rem; margin: 0.3rem 0; }
+    .bar-label { width: 140px; font-size: 0.85rem; color: #9fb0c0; }
+    .bar-track { flex: 1; background: #1a222b; border-radius: 4px; overflow: hidden; height: 14px; }
+    .bar-fill { background: #4f8cff; height: 100%; }
+    .bar-count { width: 40px; text-align: right; font-size: 0.8rem; color: #9fb0c0; }
+    #refreshedAt { color: #6b7885; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>Text Analysis Dashboard</h1>
+  <span id="refreshedAt"></span>
+
+  <h2>Sentiment distribution</h2>
+  <div id="sentimentChart"></div>
+
+  <h2>Topic distribution</h2>
+  <div id="topicChart"></div>
+
+  <h2>Toxicity ratio</h2>
+  <div id="toxicityChart"></div>
+
+  <h2>Entity type distribution</h2>
+  <div id="nerChart"></div>
+
+  <h2>Recent messages</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Text</th>
+        <th>Sentiment</th>
+        <th>Topic</th>
+        <th>Toxicity</th>
+        <th>Entities</th>
+      </tr>
+    </thead>
+    <tbody id="messagesBody"></tbody>
+  </table>
+
+  <script src="app.js"></script>
+</body>
+</html>

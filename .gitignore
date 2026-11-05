@@ -1,0 +1,31 @@
+# data
+data/dataset.jsonl
+
+# python
+consumers-python/**/__pycache__/
+consumers-python/.venv/
+*.pyc
+
+# ner_service training artifacts (regenerate via training/train_ner.py)
+consumers-python/ner_service/artifacts/
+consumers-python/ner_service/training/runs/
+
+# go
+producer-go/producer
+producer-go/*.exe
+
+# node
+dashboard-node/node_modules/
+dashboard-node/.env
+visualizer-node/node_modules/
+visualizer-node/.env
+
+# env
+.env
+
+# scripts/start-all.sh output
+logs/
+pids/
+
+# misc
+.DS_Store

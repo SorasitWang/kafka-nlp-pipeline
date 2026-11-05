@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "consumers-python"
+version = "0.1.0"
+description = "NLP consumer services (sentiment, topic, toxicity, ner) + one-time dataset export"
+authors = []
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+confluent-kafka = "^2.5.0"
+transformers = "^4.44.0"
+torch = { version = "*", source = "pytorch-cpu" }
+psycopg2-binary = "^2.9.9"
+python-dotenv = "^1.0.1"
+datasets = "^2.21.0"
+seqeval = "^1.2.2"
+accelerate = "^1.0.0"
+
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
