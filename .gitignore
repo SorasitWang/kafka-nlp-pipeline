@@ -29,3 +29,6 @@ pids/
 
 # misc
 .DS_Store
+
+# test caches
+.pytest_cache/

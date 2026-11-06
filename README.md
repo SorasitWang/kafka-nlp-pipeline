@@ -163,10 +163,44 @@ flowchart TD
    so every service sees every message and tracks its own progress. Running more
    instances in a group shares that group's work across the topic's partitions.
 4. **Store:** each service upserts the review into `messages` and writes its own
-   result row, keyed by `message_id`, so replaying data is safe and the latest
-   result wins.
-5. **Display:** the dashboard polls Postgres for results, and the visualizer polls
+   result row in one transaction, keyed by `message_id`, so replaying data is
+   safe and the latest result wins.
+5. **Commit:** only then does the service commit the message's Kafka offset.
+6. **Display:** the dashboard polls Postgres for results, and the visualizer polls
    Kafka and Postgres for operational status.
+
+### Delivery guarantees
+
+Consumers process each message **at least once**, and never skip one silently:
+
+- **Manual offset commits.** Auto-commit is off. A service commits a message's
+  offset only after its result is stored, so a crash mid-message means the
+  message is redelivered on restart, not lost.
+- **Retries, then a dead-letter topic.** A failing message is retried
+  (`CONSUMER_MAX_ATTEMPTS`, default 3, with linear backoff). If it still fails,
+  or isn't valid JSON, it is copied to `text-stream.dlq` with headers recording
+  its source offset, the consumer group, and the error, and the service moves on.
+  If even the dead-letter write fails, the offset stays uncommitted and the
+  service stops, so the message is retried after a restart.
+- **Safe redelivery.** Because results are upserted by `message_id`, processing a
+  message twice gives the same final state.
+- **Database recovery.** Each message is one Postgres transaction that rolls back
+  on error, so one bad statement can't leave the connection stuck, and a dropped
+  connection is replaced on the next message.
+
+Inspect parked messages in Kafka UI, or with
+`docker exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic text-stream.dlq --from-beginning --property print.headers=true`.
+
+## Tests
+
+The delivery logic is covered by unit tests that use in-memory fakes for Kafka
+and Postgres, so they need no running infrastructure:
+
+```bash
+cd consumers-python && poetry run pip install pytest && poetry run pytest tests
+```
+
+GitHub Actions runs them on every push.
 
 ## Prerequisites
 
