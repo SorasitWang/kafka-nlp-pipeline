@@ -1,6 +1,6 @@
 import logging
 
-from common.db import get_connection, upsert_message
+from common.db import transaction, upsert_message
 from common.kafka_consumer import run_consumer_loop
 
 from .model import MODEL_NAME, classify_toxicity
@@ -11,15 +11,14 @@ logger = logging.getLogger("toxicity_service")
 def main():
     logger.info("loading toxicity model %s...", MODEL_NAME)
     classify_toxicity("warmup")
-    conn = get_connection()
 
     def handle_message(record):
         message_id = record["id"]
         text = record["text"]
-        upsert_message(conn, message_id, text, record.get("source_dataset"), record.get("produced_at"))
-
         label, score, is_toxic = classify_toxicity(text)
-        with conn.cursor() as cur:
+        # The message row and this service's result commit together, or not at all.
+        with transaction() as cur:
+            upsert_message(cur, message_id, text, record.get("source_dataset"), record.get("produced_at"))
             cur.execute(
                 """
                 INSERT INTO toxicity_results (message_id, is_toxic, toxicity_score, label, model_name)
@@ -31,7 +30,6 @@ def main():
                 """,
                 (message_id, is_toxic, score, label, MODEL_NAME),
             )
-        conn.commit()
         logger.info("processed %s -> %s toxic=%s (%.3f)", message_id, label, is_toxic, score)
 
     run_consumer_loop("toxicity-service", handle_message)

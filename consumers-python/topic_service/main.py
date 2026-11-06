@@ -1,7 +1,7 @@
 import json
 import logging
 
-from common.db import get_connection, upsert_message
+from common.db import transaction, upsert_message
 from common.kafka_consumer import run_consumer_loop
 
 from .model import MODEL_NAME, classify_topic
@@ -12,15 +12,14 @@ logger = logging.getLogger("topic_service")
 def main():
     logger.info("loading zero-shot topic model %s...", MODEL_NAME)
     classify_topic("warmup")
-    conn = get_connection()
 
     def handle_message(record):
         message_id = record["id"]
         text = record["text"]
-        upsert_message(conn, message_id, text, record.get("source_dataset"), record.get("produced_at"))
-
         top_label, top_score, all_labels = classify_topic(text)
-        with conn.cursor() as cur:
+        # The message row and this service's result commit together, or not at all.
+        with transaction() as cur:
+            upsert_message(cur, message_id, text, record.get("source_dataset"), record.get("produced_at"))
             cur.execute(
                 """
                 INSERT INTO topic_results (message_id, top_label, top_score, all_labels, model_name)
@@ -32,7 +31,6 @@ def main():
                 """,
                 (message_id, top_label, top_score, json.dumps(all_labels), MODEL_NAME),
             )
-        conn.commit()
         logger.info("processed %s -> %s (%.3f)", message_id, top_label, top_score)
 
     run_consumer_loop("topic-service", handle_message)

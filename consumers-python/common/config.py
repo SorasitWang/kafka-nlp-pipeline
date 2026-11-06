@@ -19,6 +19,10 @@ def _require(key: str) -> str:
 
 KAFKA_BROKERS = _get("KAFKA_BROKERS", "localhost:9092")
 TOPIC_NAME = _get("TOPIC_NAME", "text-stream")
+# Messages that still fail after MAX_ATTEMPTS go here instead of being dropped.
+DLQ_TOPIC_NAME = _get("DLQ_TOPIC_NAME", f"{TOPIC_NAME}.dlq")
+MAX_ATTEMPTS = max(1, int(_get("CONSUMER_MAX_ATTEMPTS", "3")))
+RETRY_BACKOFF_SECONDS = float(_get("CONSUMER_RETRY_BACKOFF_SECONDS", "1"))
 
 POSTGRES_HOST = _get("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = _get("POSTGRES_PORT", "5432")

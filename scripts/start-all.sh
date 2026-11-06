@@ -62,6 +62,12 @@ docker exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:90
   --create --topic "$TOPIC_NAME" --partitions 2 --replication-factor 1 --if-not-exists >/dev/null
 log "topic \"$TOPIC_NAME\" ready"
 
+# Consumers park messages that keep failing here, instead of dropping them.
+DLQ_TOPIC_NAME="${DLQ_TOPIC_NAME:-$TOPIC_NAME.dlq}"
+docker exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 \
+  --create --topic "$DLQ_TOPIC_NAME" --partitions 1 --replication-factor 1 --if-not-exists >/dev/null
+log "dead-letter topic \"$DLQ_TOPIC_NAME\" ready"
+
 log "waiting for Postgres to accept connections..."
 for _ in $(seq 1 30); do
   if docker exec postgres pg_isready -U "$POSTGRES_USER" >/dev/null 2>&1; then
